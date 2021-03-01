@@ -23,6 +23,8 @@ Clicking the figures below will take you to interactive plots made using the `bo
 The contain the same information as above, in the form of a flowchart, to show how the blocks are interrelated.
 (If the links are taking you to raw html instead of interactive plots, view this page [on github pages](https://josiclab.github.io/flybrain-clustering/gallery.html))
 
-[<img src="figures/cluster_0_7_flowchart.png" width="30%" />](figures/cluster_0_7_breakdown.html)
-[<img src="figures/cluster_0.05_9_flowchart.png" width="30%" />](figures/cluster_0.05_9_breakdown.html)
-[<img src="figures/cluster_0.05_7_flowchart.png" width="30%" />](figures/cluster_0.05_7_breakdown.html)
+[<img src="figures/cluster_0_7_flowchart.png" width="50%" />](figures/cluster_0_7_breakdown.html)
+[<img src="figures/cluster_0.05_9_flowchart.png" width="50%" />](figures/cluster_0.05_9_breakdown.html)
+
+[<img src="figures/cluster_0.05_7_flowchart.png" width="50%" />](figures/cluster_0.05_7_breakdown.html)
+[<img src="figures/cluster_celltype_MC61_flowchart" width="50%" />](figures/cluster_celltype_MC61_breakdown.html)
