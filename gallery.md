@@ -21,7 +21,8 @@ groups together many cell types.
 
 Clicking the figures below will take you to interactive plots made using the `bokeh` package in Python.
 The contain the same information as above, in the form of a flowchart, to show how the blocks are interrelated.
-(If the links are taking you to raw html instead of interactive plots, view this page [on github pages](https://josiclab.github.io/flybrain-clustering/gallery.html))
+(If the links are taking you to raw html instead of interactive plots, view this page [on github pages](https://josiclab.github.io/flybrain-clustering/gallery.html)). Click on a block to highlight the incoming and outgoing edges; the control panel on the right of the plot
+allows you to zoom using a zoom box or the scroll wheel of your mouse.
 
 The top left figure is the breakdown of cluster 0.0/7, from left to right.
 The top right and bottom left figures show clusters 0.05/9 and 0.05/7, respectively.
