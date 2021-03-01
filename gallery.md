@@ -22,6 +22,6 @@ groups together many cell types.
 Clicking the figures below will take you to interactive plots made using the `bokeh` package in Python.
 The contain the same information as above, in the form of a flowchart, to show how the blocks are interrelated. 
 
-[<img src="figures/cluster_0_7_flowchart.png" width="30%" />](figures/cluster_0_7.html)
-[<img src="figures/cluster_0.05_9_flowchart.png" width="30%" />](figures/cluster_0.05_9.html)
-[<img src="figures/cluster_0.05_7_flowchart.png" width="30%" />](figures/cluster_0.05_7.html)
+[<img src="figures/cluster_0_7_flowchart.png" width="30%" />](figures/cluster_0_7_breakdown.html)
+[<img src="figures/cluster_0.05_9_flowchart.png" width="30%" />](figures/cluster_0.05_9_breakdown.html)
+[<img src="figures/cluster_0.05_7_flowchart.png" width="30%" />](figures/cluster_0.05_7_breakdown.html)
