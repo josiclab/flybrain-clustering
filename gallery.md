@@ -31,4 +31,4 @@ The bottom right figure shows cells of type MC61 (notice the rightmost columns a
 [<img src="figures/cluster_0.05_9_flowchart.png" width="45%" />](figures/cluster_0.05_9_breakdown.html)
 
 [<img src="figures/cluster_0.05_7_flowchart.png" width="45%" />](figures/cluster_0.05_7_breakdown.html)
-[<img src="figures/cluster_celltype_MC61_flowchart" width="45%" />](figures/cluster_celltype_MC61_breakdown.html)
+[<img src="figures/cluster_celltype_MC61_flowchart.png" width="45%" />](figures/cluster_celltype_MC61_breakdown.html)
