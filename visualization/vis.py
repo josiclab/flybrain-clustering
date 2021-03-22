@@ -3,7 +3,6 @@ Utility functions for visualizing fly brain data using `bokeh` package.
 """
 import numpy as np
 import pandas as pd
-import bokeh
 import colorcet as cc
 # import hvplot.pandas
 # import holoviews as hv
@@ -12,15 +11,12 @@ import colorcet as cc
 # import bokeh.palettes
 # from bokeh.plotting import figure
 # from bokeh.io import output_file, show
-from bokeh.models import (Ellipse, Rect, MultiLine, Circle,
+from bokeh.models import (Rect, MultiLine, Circle,
                           GraphRenderer, StaticLayoutProvider,
-                          EdgesAndLinkedNodes, NodesAndLinkedEdges,
-                          HoverTool, BoxZoomTool, ResetTool, BoxSelectTool, TapTool,
-                          ColumnDataSource)
+                          NodesAndLinkedEdges,
+                          HoverTool, TapTool)
 
-from math import sqrt, cos, sin, pi, ceil
-
-from logging import debug, info, warning, error, critical
+from math import sqrt, sin, pi, ceil
 
 
 def circle_arc(P, Q, R, k):
@@ -67,6 +63,45 @@ def inverted_circle_arc(P, Q, R, k, diag_tol=1e-8):
 
     # return circle arc centered at new center
     return circle_arc(Pp, Q, R, k)
+
+
+def flowchart_quarter_circle_curve(P, Q, b, circle_k=3):
+    """
+    Returns the xs and ys for a flowchart curve that moves from P to Q, drawn
+    using straight line segments joined by quarter-circle arcs. `b` is the
+    length of the horizontal segment.
+    """
+    half_height = np.abs(Q[1] - P[1]) / 2
+    r = min(half_height, np.abs(Q[0] - P[0]) / 2 - b)
+    if r <= 0:
+        return np.array([P[0], Q[0]]), np.array([[P[1], Q[1]]])
+    # exclue_vertical = (r != half_height)
+
+    bvec = np.array([np.sign(Q[0] - P[0]) * b, 0])
+    r_displacement = np.sign(Q[1] - P[1]) * r
+
+    # xs, ys = [P[0]], [P[1]]
+    Pp = P + bvec
+    C1 = P + bvec + np.array([0, r_displacement])
+    Ppp = np.array([(P[0] + Q[0]) / 2, P[1] + r_displacement])
+    Qpp = np.array([(P[0] + Q[0]) / 2, Q[1] - r_displacement])
+    C2 = Q - bvec - np.array([0, r_displacement])
+    Qp = Q - bvec
+
+    first_circle_xs, first_circle_ys = circle_arc(C1, Pp, Ppp, circle_k)
+    second_circle_xs, second_circle_ys = circle_arc(C2, Qpp, Qp, circle_k)
+    # if r == half_height:
+    #     second_circle_xs, second_circle_ys = second_circle_xs[1:], second_circle_ys[1:]
+    xs = np.hstack([[P[0]], first_circle_xs, second_circle_xs, Q[0]])
+    ys = np.hstack([[P[1]], first_circle_ys, second_circle_ys, Q[1]])
+    return xs, ys
+
+
+def index_to_unique_list(index, name):
+    """
+    Convert the given pandas index into a list of strings by concatenating with the given name.
+    """
+    return [str(name) + str(idx) for idx in index]
 
 
 def repeat_to_match_lengths(list_to_repeat, length_to_match,):
@@ -187,40 +222,6 @@ def circle_layout_graph(node_df, edge_df,
     return graph, tools
 
 
-def flowchart_quarter_circle_curve(P, Q, b, circle_k=3):
-    half_height = np.abs(Q[1] - P[1]) / 2
-    r = min(half_height, np.abs(Q[0] - P[0]) / 2 - b)
-    if r <= 0:
-        return np.array([P[0], Q[0]]), np.array([[P[1], Q[1]]])
-    # exclue_vertical = (r != half_height)
-
-    bvec = np.array([np.sign(Q[0] - P[0]) * b, 0])
-    r_displacement = np.sign(Q[1] - P[1]) * r
-
-    # xs, ys = [P[0]], [P[1]]
-    Pp = P + bvec
-    C1 = P + bvec + np.array([0, r_displacement])
-    Ppp = np.array([(P[0] + Q[0]) / 2, P[1] + r_displacement])
-    Qpp = np.array([(P[0] + Q[0]) / 2, Q[1] - r_displacement])
-    C2 = Q - bvec - np.array([0, r_displacement])
-    Qp = Q - bvec
-
-    first_circle_xs, first_circle_ys = circle_arc(C1, Pp, Ppp, circle_k)
-    second_circle_xs, second_circle_ys = circle_arc(C2, Qpp, Qp, circle_k)
-    # if r == half_height:
-    #     second_circle_xs, second_circle_ys = second_circle_xs[1:], second_circle_ys[1:]
-    xs = np.hstack([[P[0]], first_circle_xs, second_circle_xs, Q[0]])
-    ys = np.hstack([[P[1]], first_circle_ys, second_circle_ys, Q[1]])
-    return xs, ys
-
-
-def index_to_unique_list(index, name):
-    """
-    Convert the given pandas index into a list of strings by concatenating with the given name.
-    """
-    return [str(name) + str(idx) for idx in index]
-
-
 def breakdown_flowchart_graph(df, columns=None, x_coords=None,
                               bar_width=1, gap=3,
                               palette=cc.glasbey_dark,
@@ -321,101 +322,3 @@ def breakdown_flowchart_graph(df, columns=None, x_coords=None,
     suggested_y_range = (0, max(y + h / 2 for y, h in zip(node_y, node_height)))
 
     return graph, tools, (suggested_x_range, suggested_y_range)
-
-
-# def index_to_unique_list(index, name):
-#     try:
-#         return (index * 1000 + int(100 * float(name))).to_list()
-#     except:
-#         return [(hash(s + name) & (2 ** 17 - 1)) + 1 for s in index]
-
-
-# def breakdown_flowchart_fig(chi_value, cluster_id, node_df=FB_node_df,
-#                             cols=['0', '0.05', '0.1', '0.25', '0.5', '0.75', '1', 'celltype', 'instance'],
-#                             x_coords=[0, 2, 4, 6, 8, 10, 12, 16, 18],
-#                             transform_edge_width=None,
-#                             curve_steps=10, curve_dh_tol=1e-8, curve_kwargs={},
-#                             bar_width=0.8,
-#                             hover_tooltips={}, add_hovertool=True):
-#     """Using `bokeh`'s `GraphRenderer`, display a graph breakdown figure. `node_df` should be the full df,
-#     subselection will happen within the function."""
-#     # step 0: select the df to operate on.
-
-# #     for chi_value, cluster_id in or_values.items():
-#     df = node_df[node_df[chi_value] == cluster_id]
-
-#     # step 1: construct the nodes and their layout.
-#     node_index = []
-#     node_x, node_y, node_height = [], [], []
-#     param_name, cluster_id = [], []
-#     for c, x in zip(cols, x_coords):
-#         val_counts = df[c].value_counts()
-# #         try:
-# #             new_indices = (val_counts.index * 1000 + int(100 * float(c))).to_list()
-# #         except:
-# #             # it seems bokeh doesn't handle 64 bit integers well, so I truncate the hash to the last 17 bits
-# #             new_indices = [(hash(s + c) & (2 ** 17 - 1)) for s in val_counts.index]  # convert strings to ints
-#         new_indices = index_to_unique_list(val_counts.index, c)
-#         node_index += new_indices
-#         cluster_id += val_counts.index.to_list()
-#         param_name += [c] * len(new_indices)
-#         node_x += [x] * len(new_indices)
-#         node_y += list(val_counts.values.cumsum() - val_counts.values / 2)
-#         node_height += val_counts.values.tolist()
-#     n_nodes = len(node_index)
-#     graph = GraphRenderer()
-#     palette = bokeh.palettes.Category20[min(20, n_nodes)]
-#     palette = palette[::2] + palette[1::2]  # shuffle to avoid AA' pattern of Cat20
-#     palette = palette * (n_nodes // len(palette) + 1)
-#     palette = palette[:n_nodes]
-
-#     # now add the node data to the graph renderer
-#     graph.node_renderer.data_source.data = dict(index=node_index, cluster=cluster_id, height=node_height, param=param_name, color=palette)
-#     graph_layout = dict(zip(node_index, zip(node_x, node_y)))
-#     graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
-#     color_mapper = dict(zip(node_index, palette))  # used for quickly getting color from node index
-
-#     # style the nodes like bars in a bar graph
-#     graph.node_renderer.glyph = Rect(width=bar_width, height="height", fill_color="color")
-#     graph.node_renderer.hover_glyph = Rect(width=bar_width, height="height", fill_color="color", line_color="#ff0000", line_width=2)
-#     graph.node_renderer.selection_glyph = Rect(width=bar_width, height="height", fill_color="color")
-
-#     # step 2: construct the edges and their paths
-#     start, end = [], []
-#     xs, ys = [], []
-#     edge_width, edge_color = [], []
-#     for c0, c1 in zip(cols[:-1], cols[1:]):
-#         vc = df[[c0, c1]].value_counts()
-#         new_starts = index_to_unique_list(vc.index.get_level_values(0), c0)
-#         new_ends = index_to_unique_list(vc.index.get_level_values(1), c1)
-#         for s, e in zip(new_starts, new_ends):
-#             P = np.array(graph_layout[s])
-#             Q = np.array(graph_layout[e])
-#             curve_xs, curve_ys = flowchart_curve(P, Q, curve_steps, curve_dh_tol, **curve_kwargs)
-# #             curve_xs, curve_ys = flowchart_cubic_spline(P, Q, n_steps=curve_steps, dh_tol=curve_dh_tol, **curve_kwargs)
-#             xs.append(curve_xs)
-#             ys.append(curve_ys)
-#         start += new_starts
-#         end += new_ends
-#         edge_width += vc.values.tolist()
-#         edge_color += [color_mapper[s] for s in new_starts]
-#     if transform_edge_width is not None:
-#         edge_width = [transform_edge_width(w) for w in edge_width]
-
-#     # now add the edge data to the graph renderer
-#     graph.edge_renderer.data_source.data = {"start": start, "end": end, "line_width": edge_width, "xs": xs, "ys": ys, "color": edge_color}
-#     graph.edge_renderer.glyph = MultiLine(line_width="line_width", line_color="color", line_alpha=0.5, line_cap="round")
-#     graph.edge_renderer.hover_glyph = MultiLine(line_width="line_width", line_color="color", line_alpha=1.0, line_cap="round")
-#     graph.edge_renderer.selection_glyph = MultiLine(line_width="line_width", line_color="color", line_alpha=1.0, line_cap="round")
-#     graph.edge_renderer.nonselection_glyph = MultiLine(line_width="line_width", line_color="color", line_alpha=0.2, line_cap="round")
-
-#     graph.selection_policy = NodesAndLinkedEdges()
-#     graph.inspection_policy = NodesAndLinkedEdges()
-
-#     # set up the hover tool
-#     tools = [ResetTool(), TapTool()]
-#     if add_hovertool:
-#         node_hover_tool = HoverTool(tooltips=[(k, v) for k, v in hover_tooltips.items()])
-#         tools.append(node_hover_tool)
-
-#     return graph, tools
