@@ -115,6 +115,7 @@ def circle_layout_graph(node_df, edge_df,
                         node_data_cols=[],
                         node_index_name="id", use_node_df_index=True,
                         node_fill_by="index", node_line_by="index", node_line_width=3,
+                        default_line_color="#111111",
                         hover_fill_color="#00ff00", hover_line_color="#00aa00",
                         selected_fill_color="#ff0000", selected_line_color="#ff0000",
                         edge_start_col="node1", edge_end_col="node2", edge_weight_col="total_weight",
@@ -199,9 +200,9 @@ def circle_layout_graph(node_df, edge_df,
     graph.node_renderer.hover_glyph = Circle(radius=sin(2 * pi / n_nodes / 3), fill_color=hover_fill_color, line_color=hover_line_color, line_width=node_line_width)
     graph.node_renderer.selection_glyph = Circle(radius=sin(2 * pi / n_nodes / 3), fill_color=selected_fill_color, line_color=selected_line_color, line_width=node_line_width)
 
-    graph.edge_renderer.glyph = MultiLine(line_color="#000000", line_width="weight", line_alpha="alpha")
+    graph.edge_renderer.glyph = MultiLine(line_color=default_line_color, line_width="weight", line_alpha="alpha")
     graph.edge_renderer.hover_glyph = MultiLine(line_color=hover_line_color, line_width="weight", line_alpha=1.0)
-    graph.edge_renderer.selection_glyph = MultiLine(line_color=selected_line_color, line_alpha=1.0)
+    graph.edge_renderer.selection_glyph = MultiLine(line_color=selected_line_color, line_width="weight", line_alpha=1.0)
 
     graph.selection_policy = NodesAndLinkedEdges()
     graph.inspection_policy = NodesAndLinkedEdges()
