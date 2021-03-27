@@ -99,3 +99,44 @@ def reduced_graph(node_df, edge_df, columns,
 #     clusters_edge_df = clusters_edge_df.rename(columns={"cluster2": edge_count_name, origin_weight_name: edge_weight_name})
 
 #     return clusters_node_df, clusters_edge_df
+def cluster_codes(node_df, edge_df, column,
+                  u_col="pre", v_col="node2", weight_col="total_weight",
+                  col_suffixes=("_u", "_v")):
+    """
+    Given a digraph in the form of a node and edge dataframe, with some sort of
+    categorical data in `node_df[column]`, return a node dataframe with
+    "cluster codes". What this means is, for the distinct values in
+    the column, create columns for each, then populate those columns with the
+    total weight, or total count, or both, for pre- and post- neighbors.
+    """
+    # first, merge in the node data to the edge dataframe (similar to the reduced graph function)
+    merged_edge_df = edge_df.merge(node_df[[column]], left_on=u_col, right_index=True).merge(node_df[[column]], left_on=v_col, right_index=True, suffixes=col_suffixes)
+
+    # first, let's get the post-codes
+    edges_by_source = merged_edge_df.groupby([u_col, column+col_suffixes[0], column+col_suffixes[1]]).agg({weight_col:"sum", v_col:"count"}).reset_index()
+    post_code_df = edges_by_source.pivot_table(index=[column+col_suffixes[0], u_col],
+                                               columns=column+col_suffixes[1],
+                                               values=[weight_col, v_col],
+                                               aggfunc={weight_col:"sum", v_col:"sum"},
+                                               fill_value=0)
+    post_code_df = post_code_df.reset_index().rename(columns={v_col: v_col+"_count", 
+                                                              weight_col: v_col+"_weight",
+                                                              column+u_col: column,
+                                                              u_col: node_df.index.name})
+
+    # now get the pre-codes
+    edges_by_sink = merged_edge_df.groupby([v_col, column+col_suffixes[0], column+col_suffixes[1]]).agg({weight_col:"sum", u_col:"count"}).reset_index()
+    pre_code_df = edges_by_sink.pivot_table(index=[column+col_suffixes[1], v_col],
+                                            columns=column+col_suffixes[0],
+                                            values=[weight_col, u_col],
+                                            aggfunc={weight_col:"sum", v_col:"sum"},
+                                            fill_value=0)
+    pre_code_df = pre_code_df.reset_index().rename(columns={u_col: u_col + "_count",
+                                                            weight_col: u_col + "_weight",
+                                                            column+v_col: column
+                                                            v_col: node_df.index.name})
+
+
+
+
+
