@@ -5,3 +5,4 @@ __pycache__/
 
 *.sublime*
 visualization/__pycache__/
+hemibrain/
