@@ -54,51 +54,6 @@ def reduced_graph(node_df, edge_df, columns,
     return reduced_nodes_df, reduced_loops_df, reduced_edges_df
 
 
-# def reduced_graph_dfs(param, node_df=FB_node_df, edge_df=uFB_edge_df,
-#                       cluster_size_threshold=0, edge_weight_threshold=0, directed=False,
-#                       origin_id="id", origin_u="node1", origin_v="node2", origin_weight_name="total_weight",
-#                       cluster_name="cluster", node_count_name="n_nodes",
-#                       edge_count_name="n_edges", edge_weight_name="total_weight", edge_density_name="edge_density"):
-#     """Construct the node and edge dataframes for a given parameter.
-
-#     The nodes are the clusters. The node df has the cluster, # nodes in the cluster, # edges within cluster, and the total weight of the edges within the cluster.
-#     Nodes are only included if they have at least `cluster_size_threshold` nodes.
-
-#     The edges are the combined edges between clusters. If there is any edge from a node in cluster i to a node in cluster j, edge i,j is added to the df.
-#     The weight of the edge is the total weight of all edges included this way.
-
-#     Edges are only counted (in both the node and edge df) if they have weight at least `edge_weight_threshold`"""
-#     # first we tally the size of each cluster
-#     clusters_node_df = pd.DataFrame(node_df[param].value_counts())  # dataframe with 1 column; cluster id is df index
-#     clusters_node_df = clusters_node_df.rename(columns={param: node_count_name})
-#     clusters_node_df = clusters_node_df[clusters_node_df[node_count_name] >= cluster_size_threshold]
-#     # now we've filtered out clusters that are too small
-
-#     temp_df = pd.merge(node_df[param], edge_df, left_index=True, right_on=origin_u).rename(columns={param: "cluster1"})
-#     temp_df = pd.merge(node_df[param], temp_df, left_index=True, right_on=origin_v).rename(columns={param: "cluster2"})
-#     if not directed:
-#         temp_df[["cluster1", "cluster2"]] = np.sort(temp_df[["cluster1", "cluster2"]])
-#     temp_df = temp_df[temp_df[origin_weight_name] >= edge_weight_threshold]  # filter out weak connections
-#     # this is all of the edges, now with clusters (note the cluster ids have become dissociated from the nodes)
-
-#     # information about edges within clusters get added to the nodes df
-#     within_cluster_edges = temp_df[(temp_df["cluster1"] == temp_df["cluster2"]) & (temp_df[origin_weight_name] >= edge_weight_threshold)]
-#     within_cluster_edges = within_cluster_edges.groupby("cluster1")
-#     within_cluster_edges = within_cluster_edges.agg({origin_u: "count", origin_weight_name: "sum"})
-#     within_cluster_edges = within_cluster_edges.rename(columns={origin_u: edge_count_name, origin_weight_name: edge_weight_name})
-
-#     clusters_node_df = pd.merge(clusters_node_df, within_cluster_edges, left_index=True, right_index=True, how="left")
-#     clusters_node_df[edge_density_name] = clusters_node_df[edge_count_name] / (clusters_node_df[node_count_name] * (clusters_node_df[node_count_name] - 1))
-#     if not directed:
-#         clusters_node_df[edge_density_name] = clusters_node_df[edge_density_name] * 2
-
-#     # information about inter-cluster edges get saved in a separate table
-#     inter_cluster_edges = temp_df[temp_df["cluster1"] != temp_df["cluster2"]]
-#     clusters_edge_df = inter_cluster_edges.groupby(["cluster1", "cluster2"])
-#     clusters_edge_df = clusters_edge_df.agg({origin_weight_name: "sum", "cluster2": "count"})
-#     clusters_edge_df = clusters_edge_df.rename(columns={"cluster2": edge_count_name, origin_weight_name: edge_weight_name})
-
-#     return clusters_node_df, clusters_edge_df
 def cluster_codes(node_df, edge_df, column,
                   u_col="pre", v_col="node2", weight_col="total_weight",
                   col_suffixes=("_u", "_v")):
@@ -133,8 +88,12 @@ def cluster_codes(node_df, edge_df, column,
                                             fill_value=0)
     pre_code_df = pre_code_df.reset_index().rename(columns={u_col: u_col + "_count",
                                                             weight_col: u_col + "_weight",
-                                                            column+v_col: column
+                                                            column+v_col: column,
                                                             v_col: node_df.index.name})
+
+    code_df = pre_code_df.merge(post_code_df, on=[node_df.index.name, column])
+
+    return code_df
 
 
 
