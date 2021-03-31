@@ -1,7 +1,7 @@
 import pandas as pd
-import numpy as np
 
 from functools import reduce
+
 
 def reduced_graph(node_df, edge_df, columns,
                   u_col="node1", v_col="node2", weight_col="total_weight",
@@ -50,13 +50,13 @@ def reduced_graph(node_df, edge_df, columns,
     # aggregate the self-loop edges and add some of that info to the reduced_nodes_df
     simplified_loops_df = reduced_loops_df.rename(columns={c + col_suffixes[0]: c for c in columns}).drop(columns=[c + col_suffixes[1] for c in columns])
     reduced_nodes_df = reduced_nodes_df.merge(simplified_loops_df, left_index=True, right_on=columns).set_index(columns)
-    
+
     return reduced_nodes_df, reduced_loops_df, reduced_edges_df
 
 
 def cluster_codes(node_df, edge_df, column,
                   u_col="pre", v_col="post", weight_col="total_weight",
-                  reset_type=None, property_name="property"):
+                  reset_type=None, additional_node_columns=[], property_name="property"):
     """
     Given a digraph in the form of a node and edge dataframe, with some sort of
     categorical data in `node_df[column]`, return a node dataframe with
@@ -72,8 +72,9 @@ def cluster_codes(node_df, edge_df, column,
         for c in cluster_codes.columns:
             cluster_codes[c] = cluster_codes[c].astype(reset_type)
 
-    small_df = node_df[[column]].copy()
-    small_df.columns = pd.MultiIndex.from_tuples([("node", column)], names=[None, property_name])
+    small_df = node_df[[column] + additional_node_columns].copy()
+    small_df.columns = pd.MultiIndex.from_product([["node"], [column] + additional_node_columns], names=[None, property_name])
+    # small_df.columns = pd.MultiIndex.from_tuples([("node", column)], names=[None, property_name])
 
     cluster_codes = small_df.merge(cluster_codes, left_index=True, right_index=True)
 
@@ -88,16 +89,13 @@ def one_direction_codes(node_df, edge_df, category_column, u_col="pre", v_col="p
 
     Returns: A dataframe the same length as `node_df`
     """
-    merged_edge_df = edge_df.merge(node_df[[category_column]], left_on=v_col, right_index=True).rename(columns={category_column:category_column + "_" + v_col})
+    merged_edge_df = edge_df.merge(node_df[[category_column]], left_on=v_col, right_index=True).rename(columns={category_column: category_column + "_" + v_col})
     node_code_df = merged_edge_df.pivot_table(index=u_col,
-                                              columns=category_column+"_"+v_col,
+                                              columns=category_column + "_" + v_col,
                                               values=[v_col, weight_col],
-                                              aggfunc={v_col:"count", weight_col:"sum"},
+                                              aggfunc={v_col: "count", weight_col: "sum"},
                                               fill_value=0)
-    node_code_df.rename(columns={v_col:v_col+"_count",weight_col:v_col + "_" + weight_col}, inplace=True)
+    node_code_df.rename(columns={v_col: v_col + "_count", weight_col: v_col + "_" + weight_col}, inplace=True)
     node_code_df.index.rename(node_df.index.name, inplace=True)
 
     return node_code_df
-
-
-
