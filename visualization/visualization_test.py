@@ -1,13 +1,6 @@
 import os
-print("Current Working Directory:", os.getcwd())
-wd = os.getcwd()
-os.chdir("../")
-print("Now in", os.getcwd())
 from reduce_graphs import cluster_codes
-os.chdir(wd)
-del wd
-
-from visualization.vis import circle_layout_graph, breakdown_flowchart_graph, code_heatmap
+from vis import circle_layout_graph, breakdown_flowchart_graph, code_heatmap
 
 
 import pandas as pd

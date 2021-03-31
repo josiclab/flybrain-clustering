@@ -18,7 +18,7 @@ from bokeh.transform import transform, factor_cmap
 
 from math import sin, pi
 
-from vis_util import (inverted_circle_arc, flowchart_quarter_circle_curve, index_to_unique_list, repeat_to_match_lengths, tuple_to_string)
+from vis_util import inverted_circle_arc, flowchart_quarter_circle_curve, index_to_unique_list, repeat_to_match_lengths, tuple_to_string
 
 
 def circle_layout_graph(node_df, edge_df,
