@@ -56,7 +56,7 @@ def reduced_graph(node_df, edge_df, columns,
 
 def cluster_codes(node_df, edge_df, column,
                   u_col="pre", v_col="post", weight_col="total_weight",
-                  col_suffixes=("_u", "_v")):
+                  reset_type=None, property_name="property"):
     """
     Given a digraph in the form of a node and edge dataframe, with some sort of
     categorical data in `node_df[column]`, return a node dataframe with
@@ -64,36 +64,21 @@ def cluster_codes(node_df, edge_df, column,
     the column, create columns for each, then populate those columns with the
     total weight, or total count, or both, for pre- and post- neighbors.
     """
-    # first, merge in the node data to the edge dataframe (similar to the reduced graph function)
-    merged_edge_df = edge_df.merge(node_df[[column]], left_on=u_col, right_index=True).merge(node_df[[column]], left_on=v_col, right_index=True, suffixes=col_suffixes)
+    post_codes = one_direction_codes(node_df, edge_df, column, u_col, v_col, weight_col)
+    pre_codes = one_direction_codes(node_df, edge_df, column, v_col, u_col, weight_col)
+    cluster_codes = post_codes.merge(pre_codes, left_index=True, right_index=True, how="outer").fillna(0)
 
-    # first, let's get the post-codes
-    edges_by_source = merged_edge_df.groupby([u_col, column+col_suffixes[0], column+col_suffixes[1]]).agg({weight_col:"sum", v_col:"count"}).reset_index()
-    post_code_df = edges_by_source.pivot_table(index=[column+col_suffixes[0], u_col],
-                                               columns=column+col_suffixes[1],
-                                               values=[weight_col, v_col],
-                                               aggfunc={weight_col:"sum", v_col:"sum"},
-                                               fill_value=0)
-    post_code_df = post_code_df.reset_index().rename(columns={v_col: v_col+"_count", 
-                                                              weight_col: v_col+"_weight",
-                                                              column+u_col: column,
-                                                              u_col: node_df.index.name})
+    if reset_type is not None:
+        for c in cluster_codes.columns:
+            cluster_codes[c] = cluster_codes[c].astype(reset_type)
 
-    # now get the pre-codes
-    edges_by_sink = merged_edge_df.groupby([v_col, column+col_suffixes[0], column+col_suffixes[1]]).agg({weight_col:"sum", u_col:"count"}).reset_index()
-    pre_code_df = edges_by_sink.pivot_table(index=[column+col_suffixes[1], v_col],
-                                            columns=column+col_suffixes[0],
-                                            values=[weight_col, u_col],
-                                            aggfunc={weight_col:"sum", v_col:"sum"},
-                                            fill_value=0)
-    pre_code_df = pre_code_df.reset_index().rename(columns={u_col: u_col + "_count",
-                                                            weight_col: u_col + "_weight",
-                                                            column+v_col: column,
-                                                            v_col: node_df.index.name})
+    small_df = node_df[[column]].copy()
+    small_df.columns = pd.MultiIndex.from_tuples([("node", column)], names=[None, property_name])
 
-    code_df = pre_code_df.merge(post_code_df, on=[node_df.index.name, column])
+    cluster_codes = small_df.merge(cluster_codes, left_index=True, right_index=True)
 
-    return code_df
+    return cluster_codes
+
 
 def one_direction_codes(node_df, edge_df, category_column, u_col="pre", v_col="post", weight_col="total_weight"):
     """
