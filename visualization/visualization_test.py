@@ -1,4 +1,14 @@
-from vis import circle_layout_graph, breakdown_flowchart_graph
+import os
+print("Current Working Directory:", os.getcwd())
+wd = os.getcwd()
+os.chdir("../")
+print("Now in", os.getcwd())
+from reduce_graphs import cluster_codes
+os.chdir(wd)
+del wd
+
+from visualization.vis import circle_layout_graph, breakdown_flowchart_graph, code_heatmap
+
 
 import pandas as pd
 from bokeh.plotting import figure
@@ -15,6 +25,7 @@ hemibrain_version = "v1.1"
 info("Setting up directory information for data set %s", hemibrain_version)
 preproc_node_file = "../hemibrain/preprocessed-" + hemibrain_version + "/preprocessed_nodes.csv"
 preproc_undirected_edges = "../hemibrain/preprocessed-" + hemibrain_version + "/preprocessed_undirected_edges.csv"
+directed_edges = "../hemibrain/exported-traced-adjacencies-" + hemibrain_version + "/traced-total-connections.csv"
 
 list_of_params = ['0', '0.05', '0.1', '0.25', '0.5', '0.75', '1', 'celltype', 'instance']
 reneel_params = ['0', '0.05', '0.1', '0.25', '0.5', '0.75', '1']
@@ -30,13 +41,18 @@ uFB_edge_df.reset_index(drop=True, inplace=True)
 info("Loaded full undirected edge data")
 print(uFB_edge_df.head())
 
+info("Attempting to read file %s", directed_edges)
+FB_edge_df = pd.read_csv(directed_edges).rename(columns={"bodyId_pre": "pre", "bodyId_post": "post", "weight": "total_weight"})
+info("Loaded full directed edge data")
+print(FB_edge_df.head())
+
 debug("Selecting cluster 0.0/8")
 nodes_0_8_df = FB_node_df[FB_node_df["0"] == 8][list_of_params]
 edges_0_8_df = uFB_edge_df[(uFB_edge_df['node1'].isin(nodes_0_8_df.index)) & (uFB_edge_df['node2'].isin(nodes_0_8_df.index))]
 
 # Test the circle graph plotter
 info("Plotting cluster 0.0/8 using circle_graph")
-output_file("../tests/circle_graph.html")
+output_file("../tests/circle_graph.html", title="Circle graph test")
 
 graph, tools = circle_layout_graph(nodes_0_8_df, edges_0_8_df,
                                    node_data_cols=["celltype", "instance"],
@@ -50,7 +66,7 @@ info("Successfully plotted %d nodes", len(graph.node_renderer.data_source.data["
 show(plot)
 
 info("Plotting cluster 0.0/8 breakdown figure using breakdown_flowchart_graph")
-output_file("../tests/breakdown_graph.html")
+output_file("../tests/breakdown_graph.html", title="Flowchart graph test")
 
 graph, tools, ranges = breakdown_flowchart_graph(nodes_0_8_df,
                                                  hover_tooltips={"cluster": "@col_value",
@@ -62,3 +78,10 @@ plot2.renderers.append(graph)
 plot2.add_tools(*tools),
 info("Successfully plotted!")
 show(plot2)
+
+info("Plotting cluster code heatmap for cluster 0/8")
+output_file("../tests/code_heatmap.html", title="Heatmap test")
+cluster_codes = cluster_codes(FB_node_df, FB_edge_df, "0", reset_type=int, property_name="parameter", additional_node_columns=["celltype", "instance"])
+plot3 = code_heatmap(cluster_codes[cluster_codes["node"]["0"] == 8], ["pre_count", "post_count"], node_data=["celltype", "instance"], fig_title="Cluster 0/8 code heatmap", color_mapping="log")
+info("Successfully plotted!")
+show(plot3)
