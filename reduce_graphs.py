@@ -55,7 +55,7 @@ def reduced_graph(node_df, edge_df, columns,
 
 
 def cluster_codes(node_df, edge_df, column,
-                  u_col="pre", v_col="node2", weight_col="total_weight",
+                  u_col="pre", v_col="post", weight_col="total_weight",
                   col_suffixes=("_u", "_v")):
     """
     Given a digraph in the form of a node and edge dataframe, with some sort of
@@ -95,7 +95,24 @@ def cluster_codes(node_df, edge_df, column,
 
     return code_df
 
+def one_direction_codes(node_df, edge_df, category_column, u_col="pre", v_col="post", weight_col="total_weight"):
+    """
+    Given a digraph in the form of a node and edge dataframe, with categorical
+    data in `node_df[category_column]`, return a node dataframe with "cluster
+    codes".
 
+    Returns: A dataframe the same length as `node_df`
+    """
+    merged_edge_df = edge_df.merge(node_df[[category_column]], left_on=v_col, right_index=True).rename(columns={category_column:category_column + "_" + v_col})
+    node_code_df = merged_edge_df.pivot_table(index=u_col,
+                                              columns=category_column+"_"+v_col,
+                                              values=[v_col, weight_col],
+                                              aggfunc={v_col:"count", weight_col:"sum"},
+                                              fill_value=0)
+    node_code_df.rename(columns={v_col:v_col+"_count",weight_col:v_col + "_" + weight_col}, inplace=True)
+    node_code_df.index.rename(node_df.index.name, inplace=True)
+
+    return node_code_df
 
 
 
