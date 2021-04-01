@@ -283,17 +283,37 @@ def breakdown_barchart_figure(node_df, select_col, select_value,
 
 
 def code_heatmap(full_df, codes, node_header="node", node_data=[],
+                 add_hovertool=False,
                  continuous_palette=cc.fire, category_palette=cc.glasbey,
                  color_mapping="linear",
                  fig_title="Cluster codes",
                  width=800, height=1000,
                  node_font_size="7px", category_font_size="17px"):
     """
-    Produce a plot like the one below. The first columns are specified by `node_data`, the latter are specified by `codes`.
-    While `codes` and `node_data` will be used to filter out columns from `code_df`, all rows will be used, so be sure to
-    select only the rows you want before passing it to this function.
-    """
+    Produces a "code heatmap" from the cluster code dataframe returned by
+    `reduce_graphs.cluster_codes`.
 
+    Args:
+    :param full_df: Cluster code DataFrame, as returned by `reduce_graphs.cluster_codes`.
+    :param codes: Which codes to use (e.g. `["pre_count", "post_count"]`)
+    :param node_header: Top-level index for columns with node data
+    :param node_data: Which node data columns to include in the plot
+        Note that all rows of `full_df` will be used, so pass just the rows you want to see.
+
+    :param add_hovertool: If true, adds a hovertool that displays the values in the heatmap.
+
+    :param continous_palette: Bokeh palette[1] for the heatmap. Default is `colorcet.fire`
+    :param category_palette: Bokeh palette for categorical data. Default is `colorcet.glasbey`
+    :param color_mapping: One of "linear" (default) or "log". How to map colors for the heatmap.
+                          If "log", values will be incremented by one to avoid errors.
+    :param fig_title: The title of the Bokeh figure. Default "Cluster codes"
+    :param width, height: Size in px of the figure. Default is 800px wide, 1000px tall.
+    :param node_font_size, category_font_size: Font sizes for axis labels. Default `7px` and `17px`, respectively.
+
+    :return: A Bokeh `figure`
+
+    [1] A `bokeh` palette is a list of strings, each a hex code for a color; see https://docs.bokeh.org/en/latest/docs/reference/palettes.html
+    """
     type_df = full_df[node_header][node_data]
     type_df.index = type_df.index.astype(str)
     x_categories = list(type_df.columns)
@@ -302,32 +322,34 @@ def code_heatmap(full_df, codes, node_header="node", node_data=[],
     else:
         y_categories = list(full_df.index.astype(str))
     type_stack = pd.DataFrame(type_df.stack(), columns=["type"]).reset_index()
+    type_stack.columns = pd.Series(["id", "col", "value"])
     type_source = ColumnDataSource(type_stack)
 
     code_df = full_df[codes]
     code_df.index = code_df.index.astype(str)
-    code_df.columns = pd.Series([tuple_to_string(c) for c in code_df.columns], name="neighbor")
+    code_df.columns = pd.Series([tuple_to_string(c) for c in code_df.columns], name="col")
     x_categories += list(code_df.columns)
-    code_df = pd.DataFrame(code_df.stack(), columns=["code"]).reset_index()
-    code_source = ColumnDataSource(code_df)
+    code_stack = pd.DataFrame(code_df.stack(), columns=["code"]).reset_index()
+    code_stack.columns = pd.Series(["id", "col", "value"])
+    code_source = ColumnDataSource(code_stack)
 
     if color_mapping == "log":
-        code_df["code"] = code_df["code"] + 1
-        mapper = LogColorMapper(palette=continuous_palette, low=code_df["code"].min(), high=code_df["code"].max())
+        code_stack["value"] = code_stack["value"] + 1
+        mapper = LogColorMapper(palette=continuous_palette, low=code_stack["value"].min(), high=code_stack["value"].max())
     else:
-        mapper = LinearColorMapper(palette=continuous_palette, low=code_df["code"].min(), high=code_df["code"].max())
+        mapper = LinearColorMapper(palette=continuous_palette, low=code_stack["value"].min(), high=code_stack["value"].max())
 
     p = figure(title=fig_title,
                plot_width=width, plot_height=height,
                x_range=x_categories, y_range=y_categories,
                x_axis_location="above")
-    p.rect(x="neighbor", y="id",
+    p.rect(x="col", y="id",
            width=1, height=1,
            source=code_source,
            line_color=None,
-           fill_color=transform("code", mapper))
-    category_palette = repeat_to_match_lengths(category_palette, len(type_stack["type"].unique()))
-    p.rect(x="parameter", y="id", width=1, height=1, source=type_source, line_color=None, fill_color=factor_cmap("type", palette=category_palette, factors=list(type_stack["type"].unique())))
+           fill_color=transform("value", mapper))
+    category_palette = repeat_to_match_lengths(category_palette, len(type_stack["value"].unique()))
+    p.rect(x="col", y="id", width=1, height=1, source=type_source, line_color=None, fill_color=factor_cmap("value", palette=category_palette, factors=list(type_stack["value"].unique())))
 
     color_bar = ColorBar(color_mapper=mapper, ticker=BasicTicker(desired_num_ticks=10))
     p.add_layout(color_bar, "right")
