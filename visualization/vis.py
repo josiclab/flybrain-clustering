@@ -16,9 +16,7 @@ from bokeh.models import (Rect, MultiLine, Circle,
                           ColorBar, BasicTicker)
 from bokeh.transform import transform, factor_cmap
 
-from math import sin, pi
-
-from math import sqrt, ceil
+from math import sin, pi, sqrt, ceil
 
 
 def circle_layout_graph(node_df, edge_df,
