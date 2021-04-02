@@ -315,6 +315,8 @@ def code_heatmap(full_df, codes, node_header="node", node_data=[],
     [1] A `bokeh` palette is a list of strings, each a hex code for a color; see https://docs.bokeh.org/en/latest/docs/reference/palettes.html
     """
     type_df = full_df[node_header][node_data]
+    for c in type_df.columns:
+        type_df[c] = type_df[c].astype(str)
     type_df.index = type_df.index.astype(str)
     x_categories = list(type_df.columns)
     if len(node_data) > 0:
@@ -360,7 +362,9 @@ def code_heatmap(full_df, codes, node_header="node", node_data=[],
     p.axis.major_label_standoff = 0
     p.xaxis.major_label_orientation = 1.0
     p.xaxis.major_label_text_font_size = category_font_size
-    # p.grid.grid_line_width = 0.0
+
+    if add_hovertool:
+        p.add_tools(HoverTool(tooltips=[("id", "@id"), ("info", "@col"), ("value", "@value")]))
 
     return p
 
