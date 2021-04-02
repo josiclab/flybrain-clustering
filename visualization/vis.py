@@ -23,6 +23,7 @@ def circle_layout_graph(node_df, edge_df,
                         node_data_cols=[],
                         node_index_name="id", use_node_df_index=True,
                         node_fill_by="index", node_line_by="index", node_line_width=3,
+                        scale_nodes_by=None, log_scale_nodes_by=None, node_properties={},
                         default_line_color="#111111",
                         hover_fill_color="#00ff00", hover_line_color="#00aa00",
                         selected_fill_color="#ff0000", selected_line_color="#ff0000",
@@ -104,9 +105,15 @@ def circle_layout_graph(node_df, edge_df,
     graph.edge_renderer.data_source.data = edge_data
 
     # style the nodes
-    graph.node_renderer.glyph = Circle(radius=sin(2 * pi / n_nodes / 3), fill_color="fill_color", line_color="line_color", line_width=node_line_width)
-    graph.node_renderer.hover_glyph = Circle(radius=sin(2 * pi / n_nodes / 3), fill_color=hover_fill_color, line_color=hover_line_color, line_width=node_line_width)
-    graph.node_renderer.selection_glyph = Circle(radius=sin(2 * pi / n_nodes / 3), fill_color=selected_fill_color, line_color=selected_line_color, line_width=node_line_width)
+    if log_scale_nodes_by is not None:
+        graph.node_renderer.data_source.data["radius"] = sin(2 * pi / n_nodes / 3) * np.log(node_df[log_scale_nodes_by]) / np.log(node_df[log_scale_nodes_by]).max()
+    elif scale_nodes_by is not None:
+        graph.node_renderer.data_source.data["radius"] = sin(2 * pi / n_nodes / 3) * node_df[scale_nodes_by] / node_df[scale_nodes_by].max()
+    else:
+        graph.node_renderer.data_source.data["radius"] = [sin(2 * pi / n_nodes / 3)] * n_nodes
+    graph.node_renderer.glyph = Circle(radius="radius", fill_color="fill_color", line_color="line_color", line_width=node_line_width, **node_properties)
+    graph.node_renderer.hover_glyph = Circle(radius="radius", fill_color=hover_fill_color, line_color=hover_line_color, line_width=node_line_width, **node_properties)
+    graph.node_renderer.selection_glyph = Circle(radius="radius", fill_color=selected_fill_color, line_color=selected_line_color, line_width=node_line_width, **node_properties)
 
     graph.edge_renderer.glyph = MultiLine(line_color=default_line_color, line_width="weight", line_alpha="alpha")
     graph.edge_renderer.hover_glyph = MultiLine(line_color=hover_line_color, line_width="weight", line_alpha=1.0)
