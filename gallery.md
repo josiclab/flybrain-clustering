@@ -8,7 +8,7 @@ As the parameter increases (x axis), the clusters break apart. The height of eac
 that group together at the new parameter value.
 The white margins indicate cells from the rest of the network that are part of the new cluster. So, for example,
 when the parameter increase from 0 to 0.05, the original cluster of 900 breaks into two large subclusters (plus a few tiny clusters).
-The orange cluster (which is 0.05/9) consists of 475 cells, all of which were part of cluster 0.0/7.
+The orange cluster (cluster 0.05/9) consists of 475 cells, all of which were part of cluster 0.0/7.
 On the other hand, the green block represents only 441 out of 559 cells in cluster 0.05/7, hence the white margins indicating that 118 cells, or about 20%
 of this cluster, does not belong to the original cluster 0.0/7.
 Looking from left to right, most of the bars are fully shaded -- the take away is, the clustering algorithm finds finer community structure as the control parameter increases.
