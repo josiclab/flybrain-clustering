@@ -2,6 +2,10 @@
 
 We use a clustering algorithm with a control parameter which essentially controls the coarseness of the clustering -- lower values of the parameter produce larger clusters, which tend to break apart into smaller sub-clusters as the parameter increases.
 
+<center>
+  <img src="figures/reduced_graph_0.png" />
+</center>
+
 Below is an example of this breakdown. The leftmost bar shows about 900 cells grouped together at the coarsest scale (control parameter = 0),
 in cluster #7 (the cluster labels are arbitrary). We'll refer to clusters by "parameter/id", so this cluster is "0.0/7".
 As the parameter increases (x axis), the clusters break apart. The height of each block is the proportion of the original ~900 cells
@@ -13,7 +17,9 @@ On the other hand, the green block represents only 441 out of 559 cells in clust
 of this cluster, does not belong to the original cluster 0.0/7.
 Looking from left to right, most of the bars are fully shaded -- the take away is, the clustering algorithm finds finer community structure as the control parameter increases.
 
-<img src="figures/cluster_0_7_breakdown.png">
+<center>
+  <img src="figures/cluster_0_7_breakdown.png">
+</center>
 
 The other noteworthy feature of this plot is the last two columns. "Celltype" is the expert-labeled cell type information annotated by neuroscientists.
 Notice that almost all of the blocks are completely shaded -- that is, this clustering algorithm (which only has access to weighted connectivity information)
