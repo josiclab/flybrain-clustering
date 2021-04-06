@@ -18,7 +18,7 @@ of this cluster, does not belong to the original cluster 0.0/7.
 Looking from left to right, most of the bars are fully shaded -- the take away is, the clustering algorithm finds finer community structure as the control parameter increases.
 
 <center>
-  <img src="figures/cluster_0_7_breakdown.png">
+  <img src="figures/cluster_0_7_breakdown.png" width="50%" />
 </center>
 
 The other noteworthy feature of this plot is the last two columns. "Celltype" is the expert-labeled cell type information annotated by neuroscientists.
