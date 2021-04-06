@@ -4,7 +4,7 @@ We use a clustering algorithm with a control parameter which essentially control
 
 <center>
   [<img src="figures/reduced_graph_0.png" width="45%" />](figures/reduced_graph_0.html)
-  [<img src="figures/reduced_graph_0.05.png" width=45%" />](figures/reduced_graph_0.05.html)
+  [<img src="figures/reduced_graph_0.05.png" width="45%" />](figures/reduced_graph_0.05.html)
 </center>
 
 Below is an example of this breakdown. The leftmost bar shows about 900 cells grouped together at the coarsest scale (control parameter = 0),
