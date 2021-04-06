@@ -2,14 +2,14 @@
 
 ## Reduced Graphs
 
-We use a clustering algorithm with a control parameter which essentially controls the coarseness of the clustering -- lower values of the parameter produce larger clusters, which tend to break apart into smaller sub-clusters as the parameter increases. Below is an example of the output from this algorithm. The left plot shows the 8 clusters found at the coarsest setting, with the control parameter at 0 -- each node in this graph represents from just under 100 to over 5000 neurons; the edges . A slight increase in the control parameter breaks apart those clusters. Click on the plots for interactive versions.
+We use a clustering algorithm with a control parameter which essentially controls the coarseness of the clustering -- lower values of the parameter produce larger clusters, which tend to break apart into smaller sub-clusters as the parameter increases. Below is an example of the output from this algorithm. The left plot shows the 8 clusters found at the coarsest setting, with the control parameter at 0 -- each node in this graph represents from just under 100 to over 5000 neurons; the edges are log scaled to the number of edges between the clusters. A slight increase in the control parameter breaks apart those clusters, shown on the right. Click on the plots for interactive versions: hover over a node to see how many nodes and edges lie within that cluster, as well as highlight its connectivity. The toolbar on the right lets you pan and zoom as well.
 
 [<img src="figures/reduced_graph_0.png" width="45%" />](figures/reduced_graph_0.html)
 [<img src="figures/reduced_graph_0.05.png" width="45%" />](figures/reduced_graph_0.05.html)
 
 ## Cluster breakdown
 
-Below is an example of this breakdown. The leftmost bar shows about 900 cells grouped together at the coarsest scale (control parameter = 0),
+Below is an example of how a single cluster breaks apart as the control parameter increases. The leftmost bar shows about 900 cells grouped together at the coarsest scale (control parameter = 0),
 in cluster #7 (the cluster labels are arbitrary). We'll refer to clusters by "parameter/id", so this cluster is "0.0/7".
 As the parameter increases (x axis), the clusters break apart. The height of each block is the proportion of the original ~900 cells
 that group together at the new parameter value.
@@ -29,7 +29,7 @@ Notice that almost all of the blocks are completely shaded -- that is, this clus
 groups together many cell types.
 
 Clicking the figures below will take you to interactive plots made using the `bokeh` package in Python.
-The contain the same information as above, in the form of a flowchart, to show how the blocks are interrelated.
+They contain the same information as above, in the form of a flowchart, to show how the blocks are interrelated.
 (If the links are taking you to raw html instead of interactive plots, view this page [on github pages](https://josiclab.github.io/flybrain-clustering/gallery.html)). Click on a block to highlight the incoming and outgoing edges; the control panel on the right of the plot
 allows you to zoom using a zoom box or the scroll wheel of your mouse.
 
