@@ -1,9 +1,10 @@
 ## Gallery
 
-We use a clustering algorithm with a control parameter which essentially controls the coarseness of the clustering -- lower values of the parameter produce larger clusters, which tend to break apart into smaller sub-clusters as the parameter increases.
+We use a clustering algorithm with a control parameter which essentially controls the coarseness of the clustering -- lower values of the parameter produce larger clusters, which tend to break apart into smaller sub-clusters as the parameter increases. Below is an example of the output from this algorithm. the left plot shows the 8 clusters found at the coarsest setting, with the control parameter at 0. A slight increase in the control parameter breaks apart those clusters. Click on the plots for interactive versions.
 
 <center>
-  <img src="figures/reduced_graph_0.png" />
+  [<img src="figures/reduced_graph_0.png" width="45%" />](figures/reduced_graph_0.html)
+  [<img src="figures/reduced_graph_0.05.png" width=45%" />](figures/reduced_graph_0.05.html)
 </center>
 
 Below is an example of this breakdown. The leftmost bar shows about 900 cells grouped together at the coarsest scale (control parameter = 0),
@@ -18,7 +19,7 @@ of this cluster, does not belong to the original cluster 0.0/7.
 Looking from left to right, most of the bars are fully shaded -- the take away is, the clustering algorithm finds finer community structure as the control parameter increases.
 
 <center>
-  <img src="figures/cluster_0_7_breakdown.png" width="50%" />
+  <img src="figures/cluster_0_7_breakdown.png" />
 </center>
 
 The other noteworthy feature of this plot is the last two columns. "Celltype" is the expert-labeled cell type information annotated by neuroscientists.
