@@ -110,4 +110,8 @@ for c in FB_node_df['0.0'].unique():
     info("Saved bokeh plot to %s", os.path.join(fig_dir, "cluster_0_" + str(c) + "_flowchart.html"))
 
 
-# FB_edge_df = pd.read_csv(weighted_edges_csv)
+################################################################################
+# Cluster fraction regrouping and flowcharts
+################################################################################
+info("Preparing code heatmap plots")
+FB_edge_df = pd.read_csv(weighted_edges_csv)
