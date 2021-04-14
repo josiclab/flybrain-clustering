@@ -4,7 +4,7 @@ import pandas as pd
 import argparse
 import numpy as np
 import logging
-from logging import debug, info, warning
+from logging import debug, info, warning, critical
 from bokeh.plotting import figure
 from bokeh.io import output_file, show, save
 
@@ -26,8 +26,8 @@ logging.basicConfig(format="%(asctime)s  %(module)s> %(levelname)s: %(message)s"
 fig_fmt = args.fig_fmt
 
 hemibrain_version = args.hemibrain_version
-list_of_params = ['0', '0.05', '0.1', '0.25', '0.5', '0.75', '1', 'celltype', 'instance']
-reneel_params = ['0', '0.05', '0.1', '0.25', '0.5', '0.75', '1']
+list_of_params = ['0.0', '0.05', '0.1', '0.25', '0.5', '0.75', '1.0', 'celltype', 'instance']
+reneel_params = ['0.0', '0.05', '0.1', '0.25', '0.5', '0.75', '1.0']
 type_params = ['celltype', 'instance']
 
 if "v" not in hemibrain_version:
@@ -53,13 +53,13 @@ info("Found these columns:")
 print(FB_node_df.columns)
 
 ################################################################################
-##### Cluster size distribution figure
+# Cluster size distribution figure
 ################################################################################
 info("Preparing plot of cluster size distribution")
 x_coords = list(range(len(reneel_params))) + [len(reneel_params) + 0.5 + i for i in range(len(type_params))]
 # info("Plotting things at x_coords = %s", str(x_coords))
 
-f = plt.figure(figsize=(20,15))
+f = plt.figure(figsize=(16, 12))
 
 for x, chi in zip(x_coords, list_of_params):
     cluster_sizes = FB_node_df[chi].value_counts().values
@@ -82,21 +82,21 @@ f.savefig(os.path.join(fig_dir, "cluster_distribution." + fig_fmt), bbox_inches=
 info("Saved cluster size distribution figure to %s", os.path.join(fig_dir, "cluster_distribution.png"))
 
 ################################################################################
-##### Cluster fraction regrouping and flowcharts
+# Cluster fraction regrouping and flowcharts
 ################################################################################
 info("Preparing to plot cluster breakdowns and flowcharts")
-for c in FB_node_df['0'].unique():
-    if FB_node_df[FB_node_df['0'] == c].shape[0] > 100:
+for c in FB_node_df['0.0'].unique():
+    if FB_node_df[FB_node_df['0.0'] == c].shape[0] > 100:
         threshold = 10
     else:
         threshold = 0
-    f = breakdown_barchart_figure(FB_node_df, '0', c, columns=list_of_params, x_coords=[0,1,2,3,4,5,6,7.5,8.5], figsize=(16,16), legend_threshold=threshold)
+    f = breakdown_barchart_figure(FB_node_df, '0.0', c, columns=list_of_params, x_coords=[0, 1, 2, 3, 4, 5, 6, 7.5, 8.5], figsize=(16, 16), legend_threshold=threshold)
     plt.axvline(6.75, linestyle="--", color="gray")
     f.savefig(os.path.join(fig_dir, "cluster_0_" + str(c) + "_breakdown." + fig_fmt), format=fig_fmt, bbox_inches="tight")
     info("Saved figure to %s", os.path.join(fig_dir, "cluster_0_" + str(c) + "_breakdown.") + fig_fmt)
 
     output_file(os.path.join(fig_dir, "cluster_0_" + str(c) + "_flowchart.html"), title="Cluster 0.0/" + str(c) + " breakdown flowchart (Hemibrain " + hemibrain_version + ")")
-    graph, tools, ranges = breakdown_flowchart_graph(FB_node_df[FB_node_df['0'] == c][list_of_params],
+    graph, tools, ranges = breakdown_flowchart_graph(FB_node_df[FB_node_df['0.0'] == c][list_of_params],
                                                      max_line_width=80,
                                                      hover_tooltips={"cluster": "@col_value",
                                                                      "param": "@col_name",
@@ -108,8 +108,6 @@ for c in FB_node_df['0'].unique():
     # show(plot)
     save(plot)
     info("Saved bokeh plot to %s", os.path.join(fig_dir, "cluster_0_" + str(c) + "_flowchart.html"))
-
-
 
 
 # FB_edge_df = pd.read_csv(weighted_edges_csv)

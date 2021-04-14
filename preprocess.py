@@ -90,11 +90,11 @@ for filename in os.listdir(cluster_dir):
             message = template.format(type(ex).__name__, ex.args)
             print(message)
     try:
-        debug("Found cluster name %s, attempting to standardize float format", cluster_name)
+        logging.info("Found cluster name %s, attempting to standardize float format", cluster_name)
         fcluster_name = str(float(cluster_name))
         cluster_name = fcluster_name
     except:
-        debug("Formatting failed, keeping cluster as %s", cluster_name)
+        logging.info("Formatting failed, keeping cluster as %s", cluster_name)
     if len(cluster_name) < 1:
         logging.info("Invalid cluster name: `%s`, skipping file", cluster_name)
         continue
