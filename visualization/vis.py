@@ -376,6 +376,63 @@ def code_heatmap(full_df, codes, node_header="node", node_data=[],
     return p
 
 
+def display_dataframe(df, categorical_columns=None, continuous_columns=None,
+                      name_mapper=str, color_mapping="linear",
+                      categorical_palette=cc.glasbey_dark, continuous_palette=cc.fire,
+                      fig_title="Dataframe Visualization",
+                      width=800, height=1000,
+                      y_font_size="7px", x_font_size="17px", x_orientation=1.0):
+    """
+    Display a dataframe, applying a categorical coloring to the columns listed
+    in `categorical_columns` and a heatmap to the columns listed in
+    `continuous_columns`
+    """
+    y_categories = df.index.to_list()
+    x_categories = []
+    p = figure(title=fig_title, plot_width=width, plot_height=height,
+               x_range=x_categories, y_range=y_categories,
+               x_axis_location="above")
+
+    if categorical_columns is not None:
+        cat_df = df[categorical_columns]
+        cat_df.index = cat_df.index.astype(str)
+        cat_df.columns = pd.Series([name_mapper(c) for c in cat_df.columns], name="col")
+        for c in cat_df.columns:
+            cat_df[c] = cat_df[c].astype(str)
+        cat_stack = pd.DataFrame(cat_df.stack()).reset_index()
+        cat_stack.columns = pd.Series(["id", "col", "value"])
+        cat_source = ColumnDataSource(cat_stack)
+        x_categories += list(cat_df.columns)
+
+        cat_palette = repeat_to_match_lengths(categorical_palette, len(cat_stack["value"].unique()))
+        cat_cmap = factor_cmap("value", palette=cat_palette, factors=list(cat_stack["value"].unique()))
+        p.rect(x="col", y="id", width=1, height=1, source=cat_source, line_color=None, fill_color=cat_cmap)
+
+    if continuous_columns is not None:
+        con_df = df[continuous_columns]
+        con_df.index = con_df.index.astype(str)
+        con_df.columns = pd.Series([name_mapper(c) for c in con_df.columns], name="col")
+        con_stack = pd.DataFrame(con_df.stack()).reset_index()
+        con_stack.columns = pd.Series(["id", "col", "value"])
+        con_source = ColumnDataSource(con_stack)
+        x_categories += list(con_df.columns)
+
+        if color_mapping == "log":
+            con_cmap = LogColorMapper(palette=continuous_palette, low=max(con_stack["value"].min(), 1), high=con_stack["value"].max())
+        else:
+            con_cmap = LinearColorMapper(palette=categorical_palette, low=con_stack["value"].min(), high=con_stack["value"].max())
+        p.rect(x="col", y="id", width=1, height=1, source=con_source, line_color=None, fill_color=transform("value", con_cmap))
+
+        p.axis.axis_line_color = None
+        p.axis.major_tick_line_color = None
+        p.axis.major_label_standoff = 0
+        p.yaxis.major_label_text_font_size = y_font_size
+        p.xaxis.major_label_text_font_size = x_font_size
+        p.xaxis.major_label_orientation = x_orientation
+
+    return p
+
+
 def circle_arc(P, Q, R, k):
     """Given a circle centered at `P` with points `Q` and `R` on the circle,
     returns the arc of the circle from Q to R. Produces `2 ** k` points.
@@ -420,6 +477,17 @@ def inverted_circle_arc(P, Q, R, k, diag_tol=1e-8):
 
     # return circle arc centered at new center
     return circle_arc(Pp, Q, R, k)
+
+
+def poincare_disk_geodesic(P, r, Q, R, diag_tol=1e-8):
+    """
+    Given a circle centered at `P` with radius `r` and two points `Q`, `R`
+    inside the circle, return the arc from `Q` to `R` which is the hyperbolic
+    geodesic (i.e. in the Poincare disc model[1])
+
+    [1] https://en.wikipedia.org/wiki/Poincar%C3%A9_disk_model#Lines
+    """
+    pass
 
 
 def flowchart_quarter_circle_curve(P, Q, b, circle_k=3):
