@@ -13,7 +13,7 @@ from bokeh.models import (Rect, MultiLine, Circle,
                           NodesAndLinkedEdges,
                           HoverTool, TapTool, ColumnDataSource,
                           LinearColorMapper, LogColorMapper,
-                          ColorBar, BasicTicker)
+                          ColorBar, BasicTicker, BoxZoomTool)
 from bokeh.transform import transform, factor_cmap
 
 from math import sin, pi, sqrt, ceil
@@ -351,7 +351,9 @@ def code_heatmap(full_df, codes, node_header="node", node_data=[],
     p = figure(title=fig_title,
                plot_width=width, plot_height=height,
                x_range=x_categories, y_range=y_categories,
-               x_axis_location="above")
+               x_axis_location="above",
+               tools="ypan,ywheel_zoom,yzoom_in,yzoom_out,save,reset")
+    p.add_tools(BoxZoomTool(dimensions="height"))
     p.rect(x="col", y="id",
            width=1, height=1,
            source=code_source,
@@ -377,28 +379,28 @@ def code_heatmap(full_df, codes, node_header="node", node_data=[],
 
 
 def display_dataframe(df, categorical_columns=None, continuous_columns=None,
-                      name_mapper=str, color_mapping="linear",
+                      name_mapper=str, color_mapping="linear", fillna_value=0,
                       categorical_palette=cc.glasbey_dark, continuous_palette=cc.fire,
-                      fig_title="Dataframe Visualization",
+                      fig_title="DataFrame Visualization",
                       width=800, height=1000,
-                      y_font_size="7px", x_font_size="17px", x_orientation=1.0):
+                      y_font_size="7pt", x_font_size="17px", x_orientation=1.0):
     """
     Display a dataframe, applying a categorical coloring to the columns listed
     in `categorical_columns` and a heatmap to the columns listed in
     `continuous_columns`
     """
-    y_categories = df.index.to_list()
+    y_categories = df.index.astype(str).to_list()
     x_categories = []
-    p = figure(title=fig_title, plot_width=width, plot_height=height,
-               x_range=x_categories, y_range=y_categories,
-               x_axis_location="above")
 
     if categorical_columns is not None:
-        cat_df = df[categorical_columns]
-        cat_df.index = cat_df.index.astype(str)
-        cat_df.columns = pd.Series([name_mapper(c) for c in cat_df.columns], name="col")
-        for c in cat_df.columns:
-            cat_df[c] = cat_df[c].astype(str)
+        # cat_df = df[categorical_columns]
+        cat_df = pd.DataFrame(index=df.index.astype(str))
+        for c in categorical_columns:
+            cat_df[name_mapper(c)] = df[c].values.astype(str)
+        # cat_df.index = cat_df.index.astype(str)
+        # cat_df.columns = pd.Series([name_mapper(c) for c in cat_df.columns], name="col")
+        # for c in cat_df.columns:
+        #     cat_df[c] = cat_df[c].astype(str)
         cat_stack = pd.DataFrame(cat_df.stack()).reset_index()
         cat_stack.columns = pd.Series(["id", "col", "value"])
         cat_source = ColumnDataSource(cat_stack)
@@ -406,12 +408,15 @@ def display_dataframe(df, categorical_columns=None, continuous_columns=None,
 
         cat_palette = repeat_to_match_lengths(categorical_palette, len(cat_stack["value"].unique()))
         cat_cmap = factor_cmap("value", palette=cat_palette, factors=list(cat_stack["value"].unique()))
-        p.rect(x="col", y="id", width=1, height=1, source=cat_source, line_color=None, fill_color=cat_cmap)
 
     if continuous_columns is not None:
-        con_df = df[continuous_columns]
-        con_df.index = con_df.index.astype(str)
-        con_df.columns = pd.Series([name_mapper(c) for c in con_df.columns], name="col")
+        con_df = pd.DataFrame(index=df.index.astype(str))
+        for c in continuous_columns:
+            con_df[name_mapper(c)] = df[c].values
+        con_df.fillna(fillna_value)
+        # con_df = df[continuous_columns]
+        # con_df.index = con_df.index.astype(str)
+        # con_df.columns = pd.Series([name_mapper(c) for c in con_df.columns], name="col")
         con_stack = pd.DataFrame(con_df.stack()).reset_index()
         con_stack.columns = pd.Series(["id", "col", "value"])
         con_source = ColumnDataSource(con_stack)
@@ -420,15 +425,21 @@ def display_dataframe(df, categorical_columns=None, continuous_columns=None,
         if color_mapping == "log":
             con_cmap = LogColorMapper(palette=continuous_palette, low=max(con_stack["value"].min(), 1), high=con_stack["value"].max())
         else:
-            con_cmap = LinearColorMapper(palette=categorical_palette, low=con_stack["value"].min(), high=con_stack["value"].max())
-        p.rect(x="col", y="id", width=1, height=1, source=con_source, line_color=None, fill_color=transform("value", con_cmap))
+            con_cmap = LinearColorMapper(palette=continuous_palette, low=con_stack["value"].min(), high=con_stack["value"].max())
 
-        p.axis.axis_line_color = None
-        p.axis.major_tick_line_color = None
-        p.axis.major_label_standoff = 0
-        p.yaxis.major_label_text_font_size = y_font_size
-        p.xaxis.major_label_text_font_size = x_font_size
-        p.xaxis.major_label_orientation = x_orientation
+    p = figure(title=fig_title, plot_width=width, plot_height=height,
+               x_range=x_categories, y_range=y_categories,
+               x_axis_location="above")
+    if categorical_columns is not None:
+        p.rect(x="col", y="id", width=1, height=1, source=cat_source, line_color=None, fill_color=cat_cmap)
+    if continuous_columns is not None:
+        p.rect(x="col", y="id", width=1, height=1, source=con_source, line_color=None, fill_color=transform("value", con_cmap))
+    p.axis.axis_line_color = None
+    p.axis.major_tick_line_color = None
+    p.axis.major_label_standoff = 0
+    p.yaxis.major_label_text_font_size = y_font_size
+    p.xaxis.major_label_text_font_size = x_font_size
+    p.xaxis.major_label_orientation = x_orientation
 
     return p
 
