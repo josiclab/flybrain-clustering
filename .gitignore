@@ -7,3 +7,5 @@ __pycache__/
 visualization/__pycache__/
 hemibrain/
 figures/
+
+*.auth
