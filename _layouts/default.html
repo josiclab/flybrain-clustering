@@ -11,6 +11,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     {% include head-custom.html %}
+    
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.3.min.js" crossorigin="anonymous"></script>
+    {{ page.headscript | default: ""}}
   </head>
   <body>
     <a id="skip-to-content" href="#content">Skip to the content.</a>
@@ -29,8 +32,6 @@
 
     <main id="content" class="main-content" role="main">
       {{ content }}
-      
-      {{ newthing }}
 
       <footer class="site-footer">
         {% if site.github.is_project_page %}
