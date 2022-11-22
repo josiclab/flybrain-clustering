@@ -2,6 +2,16 @@
 
 ## The Hemibrain: Network Community Structure and Anatomy
 
+<div class="bk-root" id="d72796cc-95db-4e46-98c3-aaa7ecc841fb" data-root-id="1453"></div>
+
+A comparison between community structure and anatomy.
+Brain regions identified by anatomists partition the Hemibrain into disjoint volumes, listed on the y axis.
+Names are those assigned in the Hamibrain data set, with L/R specifying left and right, respectively.
+Box height is the fraction of the volume on the y-axis contained in the cluster on the x-axis. The heights in each row sum to 1.
+The width of a box corresponds to the fraction of neurons in the cluster with synapses in the brain region given on the y axis.
+Individual neurons may have synapses in many brain regions, so the widths in one column may sum to more than 1.
+
+<!-- Cluster/ROI overlap figure -->
 <script type="text/javascript">
     (function() {
           var fn = function() {
@@ -38,5 +48,3 @@
           else document.addEventListener("DOMContentLoaded", fn);
         })();
 </script>
-
-<div class="bk-root" id="d72796cc-95db-4e46-98c3-aaa7ecc841fb" data-root-id="1453"></div>
