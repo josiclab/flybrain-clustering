@@ -1,5 +1,5 @@
-<head>
-  <script type="text/javascript">
+---
+headscript: <script type="text/javascript">
     (function() {
           var fn = function() {
             Bokeh.safely(function() {
@@ -35,7 +35,7 @@
           else document.addEventListener("DOMContentLoaded", fn);
         })();
 </script>
-</head>
+---
 
 
 ## The Hemibrain: Network Community Structure and Anatomy
