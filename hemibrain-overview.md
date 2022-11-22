@@ -1,5 +1,8 @@
----
-headscript: <script type="text/javascript">
+
+
+## The Hemibrain: Network Community Structure and Anatomy
+
+<script type="text/javascript">
     (function() {
           var fn = function() {
             Bokeh.safely(function() {
@@ -35,9 +38,5 @@ headscript: <script type="text/javascript">
           else document.addEventListener("DOMContentLoaded", fn);
         })();
 </script>
----
-
-
-## The Hemibrain: Network Community Structure and Anatomy
 
 <div class="bk-root" id="d72796cc-95db-4e46-98c3-aaa7ecc841fb" data-root-id="1453"></div>
