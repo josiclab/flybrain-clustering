@@ -5,7 +5,7 @@ __pycache__/
 
 *.sublime*
 visualization/__pycache__/
-hemibrain/
+hemibrain/exported-traced-adjacencies*
 figures/
 
 larval_MB/Data for figures/*
