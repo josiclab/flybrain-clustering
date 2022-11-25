@@ -8,4 +8,6 @@ visualization/__pycache__/
 hemibrain/
 figures/
 
+larval_MB/Data for figures/*
+
 *.auth
