@@ -11,3 +11,5 @@ figures/
 larval_MB/Data for figures/*
 
 *.auth
+obj/*
+skeleton/*
