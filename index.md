@@ -11,3 +11,7 @@ From here, you can view interactive versions of figures from our paper, which al
 [Figure 3: Reduced graphs for different resolutions](reduced-graphs.md)
 
 [Figure 4: Automatic separation of layers in the fan-shaped body](FB.md)
+
+[Figure 5: Cell type composition of clusters](cluster-composition.md)
+
+[Figures 6 and 7: Cell type-specific wiring patterns revealed by clustering](cell-types.md)
