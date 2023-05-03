@@ -24,3 +24,11 @@ In order to use these notebooks, you will need an authorization token to access 
 3. Go to your account (menu in the top right of the screen)
 4. Copy the auth token to a plain text file in the same directory as the notebooks and name it `flybrain.auth`
 
+## Notebook information
+
+The notebooks in this repo produce the figures specified below
+* `larvel-MB-figure.ipynb` - Figure 1, giving an overview of modularity in the [larval mushroom body](https://www.nature.com/articles/nature23455)
+* `overview-figure.ipynb` - Figures 2 and 4, giving an overview of modularity in the [Hemibrain](https://www.janelia.org/project-team/flyem/hemibrain) overall and in the fan-shaped body specifically.
+* `reduced-graphs.ipynb` - Figure 3, showing reduced networks where nodes represent clusters, and edges represent the weighted connectivity between clusters
+* `celltype figures.ipynb` - Figures 5-7, giving an overview of cell type-specific wiring patterns in the hemibrain
+* `thresholded-networks.ipynb` - Figure S15 (supplemental), where we show the effects of perturbing the network (dropping low-confidence synapses) on the clustering results we obtain. The perturbed network was obtained using the script `filter_graph.py`
